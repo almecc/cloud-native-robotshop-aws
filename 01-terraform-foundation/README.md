@@ -2,19 +2,20 @@
 
 Builds the AWS base for Robot Shop using Terraform. One command creates everything.
 
-## What it creates (15 resources)
+## What it creates (19 resources)
 
 - 1 VPC with 2 public subnets in 2 zones
-- 1 Internet Gateway and 1 route table
+- 1 Internet Gateway, 1 route table and 2 route table links
 - 2 IAM roles (cluster and nodes) with 4 policies
 - 1 EKS cluster (Kubernetes 1.35)
-- 1 node group: 2 x t3.small servers
+- 1 node group: 2 x m7i-flex.large servers
+- EBS storage driver addon, with its own IAM role (OIDC provider, role and policy)
 
 ## Files
 
 | File | Purpose |
 |------|---------|
-| `providers.tf` | AWS provider and region (us-east-1) |
+| `providers.tf` | AWS and TLS providers, region us-east-1 |
 | `variables.tf` | Inputs: names, network ranges, zones |
 | `main.tf` | All the resources |
 | `outputs.tf` | Cluster name, endpoint, VPC and subnet IDs |
@@ -31,15 +32,18 @@ kubectl get nodes
 
 ## Result
 
-Both nodes show `Ready`.
+The cluster is active and both nodes are `Ready`.
 
-![nodes](screenshots/kubectl-get-nodes.png)
+![EKS cluster](screenshots/eks-console.png)
+![Nodes](screenshots/kubectl-get-nodes.png)
+![Resources](screenshots/terraform-state-list.png)
 
 ## Design choices
 
 - **Public subnets only:** no NAT Gateway, so no extra hourly cost.
 - **Terraform runs locally** with AWS CLI credentials. State stays on my laptop.
 - **Destroy after each session** with `terraform destroy` to control cost.
+- **Own IAM role for the storage driver:** the driver gets only the permission it needs.
 
 ## Known simplification
 
