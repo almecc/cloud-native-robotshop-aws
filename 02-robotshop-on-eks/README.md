@@ -36,7 +36,11 @@ Open `http://<EXTERNAL-IP>:8080` in a browser.
 All 12 pods are `Running`. The `web` service got a public AWS load balancer.
 
 ![Robot Shop](screenshots/robotshop-web.png)
+
+
 ![Pods](screenshots/pods.png)
+
+
 ![Load balancer](screenshots/load-balancer.png)
 
 ## Problems and fixes
