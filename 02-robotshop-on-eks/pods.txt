@@ -1,0 +1,30 @@
+NAME                             READY   STATUS    RESTARTS   AGE
+pod/cart-7b8ddd675b-p7j4z        1/1     Running   0          33m
+pod/catalogue-6587b8998c-l5kh6   1/1     Running   0          33m
+pod/dispatch-7cdbbb656c-8gt4p    1/1     Running   0          33m
+pod/mongodb-7b4c4b8fc5-tv8dd     1/1     Running   0          33m
+pod/mysql-6fcfd6f5dc-tm9d4       1/1     Running   0          33m
+pod/payment-777b87fc7f-6x5kf     1/1     Running   0          33m
+pod/rabbitmq-79db7548cc-k4ndx    1/1     Running   0          33m
+pod/ratings-6fc64d84f8-lr8kv     1/1     Running   0          33m
+pod/redis-0                      1/1     Running   0          33m
+pod/shipping-87bbbbbfb-57dvd     1/1     Running   0          33m
+pod/user-6dd6d95fcf-z2ms8        1/1     Running   0          33m
+pod/web-779dd7d97b-wrbjb         1/1     Running   0          33m
+
+NAME                TYPE           CLUSTER-IP       EXTERNAL-IP                                                              PORT(S)                       AGE
+service/cart        ClusterIP      172.20.165.163   <none>                                                                   8080/TCP                      33m
+service/catalogue   ClusterIP      172.20.55.186    <none>                                                                   8080/TCP                      33m
+service/dispatch    ClusterIP      None             <none>                                                                   55555/TCP                     33m
+service/mongodb     ClusterIP      172.20.19.37     <none>                                                                   27017/TCP                     33m
+service/mysql       ClusterIP      172.20.71.215    <none>                                                                   3306/TCP                      33m
+service/payment     ClusterIP      172.20.4.214     <none>                                                                   8080/TCP                      33m
+service/rabbitmq    ClusterIP      172.20.76.94     <none>                                                                   5672/TCP,15672/TCP,4369/TCP   33m
+service/ratings     ClusterIP      172.20.61.64     <none>                                                                   80/TCP                        33m
+service/redis       ClusterIP      172.20.125.26    <none>                                                                   6379/TCP                      33m
+service/shipping    ClusterIP      172.20.99.182    <none>                                                                   8080/TCP                      33m
+service/user        ClusterIP      172.20.211.84    <none>                                                                   8080/TCP                      33m
+service/web         LoadBalancer   172.20.130.203   afa4e93c6ef6d40428471fec72dcbf07-206759786.us-east-1.elb.amazonaws.com   8080:32717/TCP                33m
+
+NAME                                 STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+persistentvolumeclaim/data-redis-0   Bound    pvc-36811572-482f-4dbc-95c0-67047c0d892e   1Gi        RWO            standard       <unset>                 3h50m
