@@ -117,6 +117,22 @@ resource "aws_eks_cluster" "main" {
   }
 }
 
+resource "kubernetes_storage_class" "standard" {
+  metadata {
+    name = "standard"
+  }
+
+  storage_provisioner = "ebs.csi.aws.com"
+  volume_binding_mode = "WaitForFirstConsumer"
+  reclaim_policy      = "Delete"
+
+  parameters = {
+    type = "gp3"
+  }
+
+  depends_on = [aws_eks_addon.ebs_csi]
+}
+
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "${var.project_name}-nodes-v2"
