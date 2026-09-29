@@ -239,8 +239,9 @@ resource "aws_eks_access_policy_association" "github_deploy" {
 }
 
 resource "aws_eks_access_entry" "github_plan" {
-  cluster_name  = aws_eks_cluster.main.name
-  principal_arn = "arn:aws:iam::415368001623:role/robotshop-github-actions-role"
+  cluster_name      = aws_eks_cluster.main.name
+  principal_arn     = "arn:aws:iam::415368001623:role/robotshop-github-actions-role"
+  kubernetes_groups = ["storageclass-readers"]
 
   depends_on = [aws_eks_cluster.main]
 }
@@ -255,4 +256,40 @@ resource "aws_eks_access_policy_association" "github_plan" {
   }
 
   depends_on = [aws_eks_access_entry.github_plan]
+}
+
+resource "kubernetes_cluster_role" "terraform_plan_reader" {
+  metadata {
+    name = "terraform-plan-reader"
+  }
+
+  rule {
+    api_groups = ["storage.k8s.io"]
+    resources  = ["storageclasses"]
+    verbs      = ["get", "list", "watch"]
+  }
+
+  rule {
+    api_groups = ["rbac.authorization.k8s.io"]
+    resources  = ["clusterroles", "clusterrolebindings"]
+    verbs      = ["get", "list", "watch"]
+  }
+}
+
+resource "kubernetes_cluster_role_binding" "terraform_plan_reader" {
+  metadata {
+    name = "terraform-plan-reader-binding"
+  }
+
+  role_ref {
+    api_group = "rbac.authorization.k8s.io"
+    kind      = "ClusterRole"
+    name      = kubernetes_cluster_role.terraform_plan_reader.metadata[0].name
+  }
+
+  subject {
+    kind      = "Group"
+    name      = "storageclass-readers"
+    api_group = "rbac.authorization.k8s.io"
+  }
 }
