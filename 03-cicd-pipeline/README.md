@@ -1,0 +1,39 @@
+# 03 - CI/CD Pipeline
+
+Checks and plans the Terraform code automatically using GitHub Actions, with no AWS keys stored in GitHub.
+
+## What it does
+
+- Runs on every pull request and every push to `main` that touches Terraform files
+- Checks code formatting (`terraform fmt`)
+- Checks the code is valid (`terraform validate`)
+- Shows what would change (`terraform plan`) for both Terraform folders
+- Logs in to AWS using OIDC (a short-lived key per run, nothing stored)
+
+## Files
+
+| File | Purpose |
+|------|---------|
+| `terraform/` | Creates the AWS role GitHub Actions uses to log in |
+| `../.github/workflows/terraform-ci.yml` | The pipeline itself |
+
+## How the AWS login works
+
+1. GitHub issues a short-lived identity token for the workflow run
+2. AWS checks that token against a trust rule (only this repo can use it)
+3. AWS hands back a temporary key, valid only for that run
+4. No access key or secret is ever saved in GitHub
+
+## Result
+
+All four jobs pass on a pull request.
+
+![pipeline](screenshots/pipeline-green.png)
+
+## Problem and fix
+
+GitHub changed how it identifies repositories in these tokens partway through this project (uses a new format with extra ID numbers). The trust rule I wrote used the old format, so every login was rejected. Fixed by decoding a real token from the pipeline logs to see the actual value, then matching the trust rule to it.
+
+## Not yet automatic
+
+The pipeline only checks and plans. It does not deploy Robot Shop yet, since that needs a cluster that isn't always running. Deploy is a manual step for now.
