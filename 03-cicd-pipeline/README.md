@@ -34,6 +34,9 @@ All four jobs pass on a pull request.
 
 GitHub changed how it identifies repositories in these tokens partway through this project (uses a new format with extra ID numbers). The trust rule I wrote used the old format, so every login was rejected. Fixed by decoding a real token from the pipeline logs to see the actual value, then matching the trust rule to it.
 
+The plan job could not read the Redis StorageClass. The read-only role had AWS-level permission but was never registered inside the cluster itself. Added a scoped EKS access entry and Kubernetes RBAC group for the plan role.
+
+RBAC binding used the wrong subject type at first. IAM role sessions map to a templated username, not a fixed one, so binding to a "User" does not work reliably. Bound the ClusterRole to a Kubernetes Group instead, set via the access entry's `kubernetes_groups`.
 ## Not yet automatic
 
 The pipeline only checks and plans. It does not deploy Robot Shop yet, since that needs a cluster that isn't always running. Deploy is a manual step for now.
