@@ -1,6 +1,7 @@
 name: terraform-ci
 
 on:
+  workflow_dispatch:
   pull_request:
     paths: ['01-terraform-foundation/**', '03-cicd-pipeline/terraform/**', '.github/workflows/**']
   push:
@@ -50,3 +51,28 @@ jobs:
       - name: Plan
         run: terraform plan -input=false -lock=false
         working-directory: ${{ matrix.dir }}
+
+  deploy:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Get temporary AWS access (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Connect kubectl to the cluster
+        run: aws eks update-kubeconfig --region us-east-1 --name robotshop-cluster
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+      - name: Deploy Robot Shop
+        run: |
+          kubectl create namespace robot-shop --dry-run=client -o yaml | kubectl apply -f -
+          helm upgrade --install robot-shop 03-cicd-pipeline/robot-shop-chart \
+            --namespace robot-shop
+      - name: Show result
+        run: kubectl -n robot-shop get pods,svc
