@@ -1,5 +1,7 @@
 # 02 - Robot Shop on EKS
 
+(Note: this is now managed by Terraform in 01-terraform-foundation, kept here for history.)
+
 Runs Robot Shop (12 pods) on the EKS cluster and opens it to the internet with an AWS load balancer.
 
 ## Files
