@@ -201,3 +201,23 @@ resource "aws_eks_addon" "ebs_csi" {
     aws_iam_role_policy_attachment.ebs_csi_policy,
   ]
 }
+
+# --- Let the GitHub deploy role act inside the cluster ---
+resource "aws_eks_access_entry" "github_deploy" {
+  cluster_name  = aws_eks_cluster.main.name
+  principal_arn = "arn:aws:iam::415368001623:role/robotshop-github-deploy-role"
+
+  depends_on = [aws_eks_cluster.main]
+}
+
+resource "aws_eks_access_policy_association" "github_deploy" {
+  cluster_name  = aws_eks_cluster.main.name
+  principal_arn = "arn:aws:iam::415368001623:role/robotshop-github-deploy-role"
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_eks_access_entry.github_deploy]
+}

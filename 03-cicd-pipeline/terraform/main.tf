@@ -30,14 +30,10 @@ data "aws_iam_policy_document" "github_assume" {
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values = [
-        "repo:${local.repo}:ref:refs/heads/main",
-        "repo:${local.repo}:pull_request",
-      ]
+      values   = ["repo:almecc@91388608/cloud-native-robotshop-aws@1387377301:*"]
     }
   }
 }
-
 resource "aws_iam_role" "github_actions" {
   name               = "robotshop-github-actions-role"
   assume_role_policy = data.aws_iam_policy_document.github_assume.json
@@ -65,4 +61,53 @@ resource "aws_iam_role_policy" "state_access" {
   name   = "terraform-state-access"
   role   = aws_iam_role.github_actions.id
   policy = data.aws_iam_policy_document.state_access.json
+}
+
+# --- Deploy role: can connect to EKS and update Helm releases ---
+data "aws_iam_policy_document" "github_deploy_assume" {
+  statement {
+    effect  = "Allow"
+    actions = ["sts:AssumeRoleWithWebIdentity"]
+
+    principals {
+      type        = "Federated"
+      identifiers = [aws_iam_openid_connect_provider.github.arn]
+    }
+
+    condition {
+      test     = "StringEquals"
+      variable = "token.actions.githubusercontent.com:aud"
+      values   = ["sts.amazonaws.com"]
+    }
+
+    condition {
+      test     = "StringLike"
+      variable = "token.actions.githubusercontent.com:sub"
+      values   = ["repo:almecc@91388608/cloud-native-robotshop-aws@1387377301:ref:refs/heads/main"]
+    }
+  }
+}
+
+resource "aws_iam_role" "github_deploy" {
+  name               = "robotshop-github-deploy-role"
+  assume_role_policy = data.aws_iam_policy_document.github_deploy_assume.json
+}
+
+# Just enough to find and describe the cluster - not to create/delete AWS resources
+resource "aws_iam_role_policy" "eks_describe" {
+  name = "eks-describe"
+  role = aws_iam_role.github_deploy.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["eks:DescribeCluster", "eks:ListClusters"]
+      Resource = "*"
+    }]
+  })
+}
+
+output "github_deploy_role_arn" {
+  value = aws_iam_role.github_deploy.arn
 }
