@@ -1,0 +1,52 @@
+name: terraform-ci
+
+on:
+  pull_request:
+    paths: ['01-terraform-foundation/**', '03-cicd-pipeline/terraform/**', '.github/workflows/**']
+  push:
+    branches: [main]
+    paths: ['01-terraform-foundation/**', '03-cicd-pipeline/terraform/**', '.github/workflows/**']
+
+permissions:
+  id-token: write   # lets the job ask AWS for a temporary key
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dir: [01-terraform-foundation, 03-cicd-pipeline/terraform]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Format check
+        run: terraform fmt -check -recursive
+        working-directory: ${{ matrix.dir }}
+      - name: Init (no AWS needed)
+        run: terraform init -backend=false
+        working-directory: ${{ matrix.dir }}
+      - name: Validate
+        run: terraform validate
+        working-directory: ${{ matrix.dir }}
+
+  plan:
+    needs: validate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dir: [01-terraform-foundation, 03-cicd-pipeline/terraform]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+      - name: Get temporary AWS access (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+      - name: Init
+        run: terraform init
+        working-directory: ${{ matrix.dir }}
+      - name: Plan
+        run: terraform plan -input=false -lock=false
+        working-directory: ${{ matrix.dir }}
