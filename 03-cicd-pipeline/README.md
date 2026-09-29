@@ -37,3 +37,11 @@ GitHub changed how it identifies repositories in these tokens partway through th
 ## Not yet automatic
 
 The pipeline only checks and plans. It does not deploy Robot Shop yet, since that needs a cluster that isn't always running. Deploy is a manual step for now.
+
+## Deploy job (manual)
+
+A separate `deploy` job, triggered only by clicking "Run workflow" on GitHub, connects to the cluster and runs `helm upgrade --install`. It does not run automatically, since the cluster is not always on.
+
+The deploy role can only edit things inside an existing namespace, not create new ones. This is on purpose - the pipeline should not have more power than it needs. The `robot-shop` namespace is created once by hand when the cluster is rebuilt.
+
+![pipeline](screenshots/pipeline-full-green.png)
