@@ -237,3 +237,22 @@ resource "aws_eks_access_policy_association" "github_deploy" {
 
   depends_on = [aws_eks_access_entry.github_deploy]
 }
+
+resource "aws_eks_access_entry" "github_plan" {
+  cluster_name  = aws_eks_cluster.main.name
+  principal_arn = "arn:aws:iam::415368001623:role/robotshop-github-actions-role"
+
+  depends_on = [aws_eks_cluster.main]
+}
+
+resource "aws_eks_access_policy_association" "github_plan" {
+  cluster_name  = aws_eks_cluster.main.name
+  principal_arn = "arn:aws:iam::415368001623:role/robotshop-github-actions-role"
+  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
+
+  depends_on = [aws_eks_access_entry.github_plan]
+}
