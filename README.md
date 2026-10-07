@@ -10,4 +10,6 @@ Deploying Robot Shop on AWS EKS using Terraform, GitHub Actions, Prometheus and 
 - 04 - Cloud Observability
 - 05 - Autoscaling Demo
 
+On a fresh cluster, run `./bootstrap.sh` after `terraform apply`, before anything else.
+
 Full README with architecture diagram coming at the end.
