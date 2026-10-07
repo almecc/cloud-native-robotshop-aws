@@ -22,6 +22,12 @@ Builds the AWS base for Robot Shop using Terraform. One command creates everythi
 
 ## How to run
 
+**Important:** on a fresh cluster, run this ONE command before the first `terraform apply` with access entries in it, or it will fail:
+```bash
+aws eks update-cluster-config --name robotshop-cluster --region us-east-1 --access-config authenticationMode=API_AND_CONFIG_MAP
+```
+This cannot be put inside Terraform without forcing a full cluster rebuild, so it has to be run manually every time the cluster is recreated from scratch.
+
 ```bash
 terraform init
 terraform plan
