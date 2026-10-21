@@ -1,0 +1,10 @@
+kubectl get hpa -n robot-shop
+NAME        REFERENCE              TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+cart        Deployment/cart        cpu: 1%/50%   1         2         1          7d
+catalogue   Deployment/catalogue   cpu: 1%/50%   1         2         1          7d
+dispatch    Deployment/dispatch    cpu: 1%/50%   1         2         1          7d
+payment     Deployment/payment     cpu: 1%/50%   1         2         1          7d
+ratings     Deployment/ratings     cpu: 1%/50%   1         2         1          7d
+shipping    Deployment/shipping    cpu: 2%/50%   1         2         1          7d
+user        Deployment/user        cpu: 1%/50%   1         2         1          7d
+web         Deployment/web         cpu: 8%/50%   1         2         1          7d
