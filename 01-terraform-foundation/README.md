@@ -2,7 +2,7 @@
 
 Builds the AWS base for Robot Shop using Terraform. One command creates everything.
 
-## What it creates (19 resources)
+## What it creates (26 resources)
 
 - 1 VPC with 2 public subnets in 2 zones
 - 1 Internet Gateway, 1 route table and 2 route table links
@@ -10,6 +10,8 @@ Builds the AWS base for Robot Shop using Terraform. One command creates everythi
 - 1 EKS cluster (Kubernetes 1.35)
 - 1 node group: 2 x m7i-flex.large servers
 - EBS storage driver addon, with its own IAM role (OIDC provider, role and policy)
+- 2 EKS access entries with 2 access policies, for the GitHub Actions roles
+- A Kubernetes StorageClass, plus a read-only ClusterRole and binding for the plan role
 
 ## Files
 
@@ -43,6 +45,7 @@ The cluster is active and both nodes are `Ready`.
 ![EKS cluster](screenshots/eks-console.png)
 ![Nodes](screenshots/kubectl-get-nodes.png)
 ![Resources](screenshots/terraform-state-list.png)
+(Screenshot taken at the first build, 19 resources. Access entries, the StorageClass and RBAC were added later, making 26.)
 
 ## Design choices
 
